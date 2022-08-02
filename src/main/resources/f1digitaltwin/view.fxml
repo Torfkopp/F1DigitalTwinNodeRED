@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.Font?>
+<VBox alignment="CENTER" prefHeight="764.0" prefWidth="785.0" spacing="20.0" xmlns="http://javafx.com/javafx/16"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="f1digitaltwin.Controller">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+    <HBox prefHeight="400.0" prefWidth="750.0">
+        <Accordion>
+            <panes>
+                <TitledPane animated="false" text="Track settings">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="250.0">
+                        <ChoiceBox fx:id="trackChoice" layoutX="105.0" layoutY="5.0" onAction="#onTrackChoiceChange"
+                                   prefHeight="25.0" prefWidth="120.0"/>
+                        <Spinner fx:id="startLap" editable="true" layoutX="105.0" layoutY="37.0" prefHeight="25.0"
+                                 prefWidth="120.0"/>
+                        <Label layoutX="29.0" layoutY="9.0" text="Track"/>
+                        <Label layoutX="13.0" layoutY="41.0" text="Starting lap"/>
+                    </AnchorPane>
+                </TitledPane>
+                <TitledPane animated="false" text="Engine and Fuel">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="250.0">
+                        <Spinner fx:id="engineDeg" editable="true" layoutX="100.0" layoutY="5.0" prefHeight="25.0"
+                                 prefWidth="120.0"/>
+                        <Spinner fx:id="fuelLoad" editable="true" layoutX="100.0" layoutY="37.0" prefHeight="25.0"
+                                 prefWidth="120.0"/>
+                        <Label layoutX="14.0" layoutY="9.0" text="Engine deg"/>
+                        <Label layoutX="20.0" layoutY="41.0" text="Fuel load"/>
+                    </AnchorPane>
+                </TitledPane>
+                <TitledPane animated="false" text="Tyres">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="250.0">
+                        <ChoiceBox fx:id="tyreType" layoutX="90.0" layoutY="35.0" prefHeight="25.0" prefWidth="70.0"/>
+                        <Spinner fx:id="tyreAge" editable="true" layoutX="10.0" layoutY="35.0" prefHeight="25.0"
+                                 prefWidth="70.0"/>
+                        <Spinner fx:id="tyreDeg" editable="true" layoutX="170.0" layoutY="35.0" prefHeight="25.0"
+                                 prefWidth="70.0"/>
+                        <Label layoutX="34.0" layoutY="10.0" text="Age"/>
+                        <Label layoutX="111.0" layoutY="10.0" text="Type"/>
+                        <Label layoutX="172.0" layoutY="10.0" text="Degradation"/>
+                    </AnchorPane>
+                </TitledPane>
+            </panes>
+        </Accordion>
+        <AnchorPane prefHeight="150.0" prefWidth="250.0">
+            <Label fx:id="lapLabel" layoutX="31.0" layoutY="27.0" text="Lap 0 of 0" visible="false"/>
+            <Button fx:id="startButton" alignment="CENTER" contentDisplay="CENTER" layoutX="111.0" layoutY="63.0"
+                    onAction="#onStartButtonClick" text="Start!"/>
+            <Button fx:id="pauseButton" alignment="CENTER" contentDisplay="CENTER" layoutX="111.0" layoutY="63.0"
+                    onAction="#onPauseButtonClick" text="Pause" visible="false"/>
+            <Label fx:id="totalTime" layoutX="178.0" layoutY="27.0" text="Time" textAlignment="CENTER" visible="false"/>
+            <Button fx:id="pitButton" layoutX="190.0" layoutY="120.0" mnemonicParsing="false"
+                    onAction="#onPitButtonClick" prefWidth="50.0" text="Pit" visible="false"/>
+            <ChoiceBox fx:id="pitTyreChoice" layoutX="140.0" layoutY="120.0" prefHeight="25.0" prefWidth="50.0"
+                       visible="false"/>
+            <Slider fx:id="speedSlider" blockIncrement="1.0" layoutX="15.0" layoutY="125.0" majorTickUnit="1.0"
+                    max="5.0" min="1.0" minorTickCount="0" prefHeight="15.0" prefWidth="100.0" showTickMarks="true"
+                    snapToTicks="true" value="3.0" visible="false"/>
+            <Label fx:id="speedLabel" layoutX="50.0" layoutY="100.0" text="Speed" visible="false"/>
+            <Label fx:id="pitLabel" layoutX="172.0" layoutY="100.0" text="Pitstop" visible="false"/>
+            <Label fx:id="problemLabel" layoutX="69.0" text="Critical Problem Occured!" visible="false"/>
+        </AnchorPane>
+        <StackPane prefHeight="150.0" prefWidth="200.0">
+            <ImageView fx:id="trackView" fitHeight="150.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true"/>
+            <LineChart fx:id="lineChart" visible="false">
+                <xAxis>
+                    <NumberAxis side="BOTTOM"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis side="LEFT"/>
+                </yAxis>
+            </LineChart>
+        </StackPane>
+    </HBox>
+    <AnchorPane prefHeight="400.0" prefWidth="750.0">
+        <ImageView fitHeight="400.0" fitWidth="740.0" layoutX="5.0" pickOnBounds="true" preserveRatio="true">
+            <Image url="@f1car.png"/>
+        </ImageView>
+        <Rectangle fx:id="frontWing" arcHeight="5.0" arcWidth="5.0" fill="White" height="188.0" layoutX="57.0"
+                   layoutY="111.0" stroke="BLACK" strokeType="INSIDE" width="60.0"/>
+        <Rectangle fx:id="fuelTank" arcHeight="5.0" arcWidth="5.0" fill="White" height="75.0" layoutX="413.0"
+                   layoutY="166.0" stroke="BLACK" strokeType="INSIDE" width="60.0"/>
+        <Rectangle fx:id="engine" arcHeight="5.0" arcWidth="5.0" fill="White" height="95.0" layoutX="493.0"
+                   layoutY="158.0" stroke="BLACK" strokeType="INSIDE" width="135.0"/>
+        <Rectangle fx:id="frontRight" arcHeight="15.0" arcWidth="15.0" fill="White" height="45.0" layoutX="143.0"
+                   layoutY="76.0" stroke="BLACK" strokeType="INSIDE" width="89.0"/>
+        <Rectangle fx:id="frontLeft" arcHeight="15.0" arcWidth="15.0" fill="White" height="45.0" layoutX="143.0"
+                   layoutY="291.0" stroke="BLACK" strokeType="INSIDE" width="89.0"/>
+        <Rectangle fx:id="rearRight" arcHeight="15.0" arcWidth="15.0" fill="White" height="61.0" layoutX="583.0"
+                   layoutY="75.0" stroke="BLACK" strokeType="INSIDE" width="89.0"/>
+        <Rectangle fx:id="rearLeft" arcHeight="15.0" arcWidth="15.0" fill="White" height="61.0" layoutX="583.0"
+                   layoutY="276.0" stroke="BLACK" strokeType="INSIDE" width="89.0"/>
+        <Rectangle fx:id="rearWing" arcHeight="5.0" arcWidth="5.0" fill="White" height="160.0" layoutX="639.0"
+                   layoutY="123.0" stroke="BLACK" strokeType="INSIDE" width="70.0"/>
+    </AnchorPane>
+    <HBox prefHeight="400.0" prefWidth="750.0">
+        <VBox alignment="CENTER" prefHeight="400.0" prefWidth="250.0">
+            <Label text="Tyres">
+                <font>
+                    <Font name="System Bold" size="12.0"/>
+                </font>
+            </Label>
+            <GridPane alignment="CENTER" prefHeight="350.0" prefWidth="250.0">
+                <columnConstraints>
+                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="103.0" minWidth="10.0"
+                                       prefWidth="100.0"/>
+                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="145.0" minWidth="10.0"
+                                       prefWidth="100.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints/>
+                </rowConstraints>
+                <Label fx:id="infoType" alignment="CENTER" contentDisplay="CENTER" text="Type" textAlignment="CENTER"/>
+                <Label fx:id="infoAge" alignment="CENTER" contentDisplay="CENTER" text="Age" textAlignment="CENTER"
+                       GridPane.columnIndex="1"/>
+                <Label fx:id="infoFR" alignment="CENTER" contentDisplay="CENTER" text="Front Right"
+                       textAlignment="CENTER" GridPane.rowIndex="1"/>
+                <Label fx:id="infoRR" alignment="CENTER" contentDisplay="CENTER" text="Rear Right"
+                       textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label fx:id="infoFL" alignment="CENTER" contentDisplay="CENTER" text="Front Left"
+                       textAlignment="CENTER" GridPane.rowIndex="2"/>
+                <Label fx:id="infoRL" alignment="CENTER" contentDisplay="CENTER" text="Rear Left" textAlignment="CENTER"
+                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            </GridPane>
+        </VBox>
+        <VBox alignment="CENTER" prefHeight="400.0" prefWidth="250.0">
+            <Label text="Lap Times">
+                <font>
+                    <Font name="System Bold" size="12.0"/>
+                </font>
+            </Label>
+            <ListView fx:id="timeList" prefHeight="350.0" prefWidth="250.0"/>
+        </VBox>
+        <VBox alignment="CENTER" prefHeight="400.0" prefWidth="250.0">
+            <Label text="Other Parts">
+                <font>
+                    <Font name="System Bold" size="12.0"/>
+                </font>
+            </Label>
+            <GridPane prefHeight="350.0" prefWidth="250.0">
+                <columnConstraints>
+                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <Label fx:id="infoFW" alignment="CENTER" text="Front Wing" textAlignment="CENTER"/>
+                <Label fx:id="infoRW" alignment="CENTER" text="Rear Wing" textAlignment="CENTER"
+                       GridPane.columnIndex="1"/>
+                <Label fx:id="infoEngine" alignment="CENTER" text="Engine" textAlignment="CENTER"
+                       GridPane.rowIndex="1"/>
+                <Label fx:id="infoFuel" alignment="CENTER" text="Fuel" textAlignment="CENTER" GridPane.columnIndex="1"
+                       GridPane.rowIndex="1"/>
+            </GridPane>
+        </VBox>
+    </HBox>
+</VBox>

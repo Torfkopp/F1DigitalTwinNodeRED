@@ -15,15 +15,6 @@ class Engine {
     }
 
     /**
-     * @param degradation The engine's new degradation
-     * @return whether the engine is over 100 degradation
-     */
-    boolean addDegradation(double degradation) {
-        this.degradation += degradation;
-        return this.degradation >= 100;
-    }
-
-    /**
      * @return The engine's degradation
      */
     double getDegradation() {

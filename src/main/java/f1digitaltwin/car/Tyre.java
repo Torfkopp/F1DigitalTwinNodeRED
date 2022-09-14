@@ -40,19 +40,6 @@ public class Tyre {
     }
 
     /**
-     * Adds degradation to the tyre
-     * Can't be less than 0 or more than 100.
-     *
-     * @param i The amount of deg to add
-     * @return whether a tyre is over 100 degradation
-     */
-    boolean addDegradation(double i) {
-        age++;
-        degradation += i;
-        return degradation > 100;
-    }
-
-    /**
      * @return The tyre's age
      */
     int getAge() {

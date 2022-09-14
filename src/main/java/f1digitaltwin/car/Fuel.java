@@ -17,16 +17,6 @@ class Fuel {
     }
 
     /**
-     * @param kg Amount of kg to decrease by
-     * @return whether the tank is empty or not
-     */
-    boolean decreaseAmount(double kg) {
-        if (amount <= 0) return true;
-        amount -= kg;
-        return false;
-    }
-
-    /**
      * @return Amount of fuel remaining
      */
     double getAmount() {

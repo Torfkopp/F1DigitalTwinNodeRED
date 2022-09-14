@@ -57,9 +57,6 @@ public class Simulation {
     Object[] simulateLap(int currentLap) {
         Object[] obj = new Object[3];
 
-        //Cannot drive if the car is kaput
-        if (car.hasProblem()) return null;
-
         this.currentLap = currentLap;
 
         //Calculate the lap time

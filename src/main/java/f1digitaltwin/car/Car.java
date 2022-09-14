@@ -11,7 +11,6 @@ public class Car {
     private final Wing rearWing;
     private final Tyre[] tyres;
     private Wing frontWing;
-    private boolean problem = false;
 
     /**
      * Constructor
@@ -30,33 +29,6 @@ public class Car {
 
         tyres = new Tyre[4];
         changeTyres(type, tyreAge, tyreDeg);
-    }
-
-    /**
-     * @param degradation The amount to degrade the engine by
-     */
-    public void degradeEngine(double degradation) {
-        problem = engine.addDegradation(degradation);
-    }
-
-    /**
-     * Degrades all the tyres by the specified amount
-     *
-     * @param deg 0 fr, 1 fl, 2 rr, 3 rl
-     */
-    public void degradeTyres(double[] deg) {
-        problem = tyres[0].addDegradation(deg[0]) ||
-                tyres[1].addDegradation(deg[1]) ||
-                tyres[2].addDegradation(deg[2]) ||
-                tyres[3].addDegradation(deg[3]);
-    }
-
-    /**
-     * Method to degrade the wings
-     */
-    public void degradeWings(double[] wingDeg) {
-        frontWing.addDegradation(wingDeg[0]);
-        rearWing.addDegradation(wingDeg[1]);
     }
 
     /**
@@ -109,20 +81,6 @@ public class Car {
      */
     public double[] getWingStatus() {
         return new double[]{frontWing.getCondition(), rearWing.getCondition()};
-    }
-
-    /**
-     * @return Whether the car has a problem
-     */
-    public boolean hasProblem() {
-        return problem;
-    }
-
-    /**
-     * @param amount The amount of fuel to burn
-     */
-    public void loseFuel(double amount) {
-        problem = fuel.decreaseAmount(amount);
     }
 
     /**

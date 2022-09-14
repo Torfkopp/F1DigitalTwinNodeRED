@@ -3,7 +3,7 @@ package f1digitaltwin;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Class to handle the communication with NodeRED via MQTT
@@ -55,20 +55,15 @@ public class NodeREDCommunication {
      *
      * @param msg The message to be sent
      */
-    void send(String msg) {
-        //TODO Test
-        controller.messageReceived(msg);
-        //TODO Test
-        /*
+    void send(String topic, String msg) {
         try {
-            String content = "CurrentMessage: " + "Hello World";
-            MqttMessage message = new MqttMessage(content.getBytes(StandardCharsets.UTF_8));
+            MqttMessage message = new MqttMessage(msg.getBytes(StandardCharsets.UTF_8));
             message.setQos(2);
-            client.publish("currentMessage", message);
-            System.out.println("SEND message");
+            client.publish(topic, message);
+            //System.out.println("Message sent");
         } catch (Exception me) {
             System.out.println("FAILED to send");
-        } */
+        }
     }
 
     /**
@@ -94,10 +89,7 @@ public class NodeREDCommunication {
      * @param msg   The message's message
      */
     private void handleMessage(String topic, MqttMessage msg) {
-        //String
-        System.out.println("Received message");
-        System.out.println(topic + ": " + Arrays.toString(msg.getPayload()));
-        System.out.println(msg);
+        //System.out.println("Message received");
         controller.messageReceived(msg.toString());
     }
 

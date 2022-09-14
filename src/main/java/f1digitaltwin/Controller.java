@@ -111,7 +111,7 @@ public class Controller {
      * @param type The type of compound to change to
      */
     void manualPitStop(Tyre.Type type) {
-        pitStop(new String[]{type.toString(), String.valueOf((simulationOn && simulation.manualPitStop()))});
+        if (simulationOn) simulation.manualPitStop(type);
     }
 
     /**
@@ -131,17 +131,13 @@ public class Controller {
         car.setTyreStatus();
         car.setTyreDegradation(Double.parseDouble(s[8]), Double.parseDouble(s[9]), Double.parseDouble(s[10]), Double.parseDouble(s[11]));
 
+        if (!s[12].equals("noStop")) {
+            car.newTyres(Tyre.Type.valueOf(s[12]));
+            if (Boolean.parseBoolean(s[13])) car.newWing();
+        }
+
         //lap(); is getting called when the fxUpdate is finished
         fxc.update(currentLap);
-    }
-
-    /**
-     * pitStop WIP
-     */
-    void pitStop(String[] string) {
-        //TODO NodeRED des Reifen (Flügel) Wechsels benachrichtigen
-        System.out.println("PITSTOP NEEDED");
-        //nrc.send()
     }
 
     /**
@@ -156,9 +152,10 @@ public class Controller {
         s += car.getFuelLoad() + split;
         s += Arrays.toString(car.getWingStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
         s += Arrays.toString(car.getTyreStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
-        s += Arrays.toString(car.getTyreDeg()).replaceAll("^.|.$", "").replaceAll(", ", split);
+        s += Arrays.toString(car.getTyreDeg()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
+        s += "noStop";
 
-        nrc.send(s);
+        nrc.send("initial", s);
     }
 
     /**
@@ -200,8 +197,8 @@ public class Controller {
         s += rearRight + split;
         s += rearLeft + split;
 
-        if (sim[2] != null) pitStop((String[]) sim[2]);
+        s += (Arrays.toString((String[]) sim[2])).replaceAll("^.|.$", "").replaceAll(", ", split);
 
-        nrc.send(s);
+        nrc.send("simulation", s);
     }
 }

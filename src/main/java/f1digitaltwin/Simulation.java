@@ -18,6 +18,7 @@ public class Simulation {
     private final Track.Name track;
     private boolean changedWing = false;
     private int currentLap;
+    private Tyre.Type manualCompound = null;
     private boolean pitStop = false;
     private int speed = 3;
 
@@ -41,35 +42,10 @@ public class Simulation {
     }
 
     /**
-     * Method to choose the new compound
-     *
-     * @return String[] of the new compound and if a new wing is needed
+     * @param compound to change to
      */
-    String[] makePitStop() {
-        //TODO wip
-        Tyre.Type type;
-        boolean newWing;
-
-        double remainingPercent = 1.0 * currentLap / Track.getLaps(track);
-
-        if (remainingPercent > 0.75) type = Tyre.Type.SOFT;
-        else if (remainingPercent > 0.55) type = Tyre.Type.MEDIUM;
-        else type = Tyre.Type.HARD;
-
-        newWing = car.getWingStatus()[0] > 0;
-        return new String[]{String.valueOf(type), String.valueOf(newWing)};
-    }
-
-    /**
-     * Changes the variables so that the simulation knows a pit stop was made
-     *
-     * @return If the wings needs to be changed
-     */
-    boolean manualPitStop() {
-        //TODO wip
-        pitStop = true;
-        changedWing = car.getWingStatus()[0] > 0;
-        return changedWing;
+    void manualPitStop(Tyre.Type compound) {
+        manualCompound = compound;
     }
 
     /**
@@ -105,9 +81,7 @@ public class Simulation {
 
         obj[1] = newValues;
 
-        //Calculate if a pit stop is needed and if yes, what to change
-        obj[2] = null;
-        if (pitStopNeeded()) obj[2] = makePitStop();
+        obj[2] = pitStop();
 
         //Return the string
         return obj;
@@ -287,7 +261,7 @@ public class Simulation {
         if (pitStop) {
             time += 20000;
             time += (int) (Math.random() * 4000);
-            if (changedWing) time += 5000;
+            if (changedWing) time += 6000;
             pitStop = false;
             changedWing = false;
         }
@@ -362,6 +336,43 @@ public class Simulation {
     }
 
     /**
+     * When a pitStop is needed, chooses the new compound and
+     * if a new wing is needed
+     *
+     * @return String[] of new compound and if new wing is needed
+     */
+    private String[] pitStop() {
+        pitStop = true;
+        String[] s = new String[2];
+        s[1] = String.valueOf(pitStopWing());
+
+        if (manualCompound != null) {
+            s[0] = String.valueOf(manualCompound);
+            manualCompound = null;
+        } else if (!pitStopNeeded()) s[0] = "noStop";
+        else s[0] = pitStopCompound();
+
+        return s;
+    }
+
+    /**
+     * Method to choose the new compound
+     *
+     * @return String of the new compound
+     */
+    private String pitStopCompound() {
+        Tyre.Type type;
+
+        double remainingPercent = 1.0 * currentLap / Track.getLaps(track);
+
+        if (remainingPercent > 0.75) type = Tyre.Type.SOFT;
+        else if (remainingPercent > 0.55) type = Tyre.Type.MEDIUM;
+        else type = Tyre.Type.HARD;
+
+        return String.valueOf(type);
+    }
+
+    /**
      * @return Whether a pit stop is needed
      */
     private boolean pitStopNeeded() {
@@ -393,5 +404,15 @@ public class Simulation {
         if (car.getWingStatus()[0] >= 25) return true;
         // Pit if the hard tyre is too old
         return car.getTyreType() == Tyre.Type.HARD && Arrays.stream(car.getTyreDeg()).anyMatch(x -> x > 63.0);
+    }
+
+    /**
+     * Calculates whether a new wing is needed
+     *
+     * @return If the wings needs to be changed
+     */
+    private boolean pitStopWing() {
+        changedWing = car.getWingStatus()[0] > 0;
+        return changedWing;
     }
 }

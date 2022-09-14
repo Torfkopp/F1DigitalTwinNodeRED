@@ -1,161 +1,207 @@
 package f1digitaltwin;
 
+import f1digitaltwin.car.Car;
 import f1digitaltwin.car.Track;
 import f1digitaltwin.car.Tyre;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
+
+import java.util.Arrays;
 
 /**
- * The FX application's Controller
+ * Class controlling the flow between the
+ * Simulation, the FXController, and the NodeREDCommunication
  */
 public class Controller {
 
-    private final int delay = 500;
-    private final ControllerDelegation delegator = new ControllerDelegation(this);
-
-    @FXML
-    public Rectangle frontRight, frontLeft, rearRight, rearLeft;
-    public Rectangle frontWing, rearWing, fuelTank, engine;
-    public Label infoFW, infoRW, infoEngine, infoFuel;
-    public Label infoType, infoAge, infoFR, infoFL, infoRR, infoRL;
-    public Label lapLabel, totalTime;
-    public LineChart<Number, Number> lineChart;
-    public Button pitButton, startButton, pauseButton;
-    public Label speedLabel, pitLabel, problemLabel;
-    public Slider speedSlider;
-    public Spinner<Integer> startLap, engineDeg, fuelLoad, tyreAge, tyreDeg;
-    public ListView<String> timeList;
-    public ChoiceBox<Track.Name> trackChoice;
-    public ImageView trackView;
-    public ChoiceBox<Tyre.Type> tyreType, pitTyreChoice;
-    int currentLap = 0;
-    int lapAmount;
-    boolean problem = false;
-    Simulation simulation;
-    boolean started = false;
-    Time timeTotal = new Time();
+    private static final boolean simulationOn = true;
+    private final FXController fxc;
+    private final NodeREDCommunication nrc;
+    private final String split = "|";
+    private Car car;
+    private int currentLap;
+    private Time lapTime = new Time();
+    private Simulation simulation;
+    private Track.Name trackName;
 
     /**
-     * Method called at the very beginning
+     * Constructor
+     *
+     * @param fxc The FXController
      */
-    @FXML
-    protected void initialize() {
-        delegator.initialise();
+    public Controller(FXController fxc) {
+        this.fxc = fxc;
+        nrc = new NodeREDCommunication(this);
+
     }
 
     /**
-     * Method called when pause button is clicked
+     * Forwards a changed speed the simulation
+     *
+     * @param value The new speed
      */
-    @FXML
-    protected void onPauseButtonClick() {
-        if (started) {
-            pauseButton.setText("Unpause");
-            started = false;
-            return;
-        }
-        started = true;
-        pauseButton.setText("Pause");
-        lap();
+    void changeSpeed(int value) {
+        if (simulationOn) simulation.changeSpeed(value);
     }
 
     /**
-     * Method called after the Pit button was clicked
+     * 0 Front Left, 1 Front Right, 2 Rear Left, 3 Rear Right
+     * 4 Front Wing, 5 Rear Wing, 6 Engine, 7 Fuel
+     *
+     * @return Array of integer representing the part's degradation
      */
-    @FXML
-    protected void onPitButtonClick() {
-        simulation.manualPitStop(pitTyreChoice.getValue());
+    double[] getDegradation() {
+        double[] deg = new double[8];
+        System.arraycopy(car.getTyreDeg(), 0, deg, 0, 4);
+        System.arraycopy(car.getWingStatus(), 0, deg, 4, 2);
+        deg[6] = car.getEngineDeg();
+        deg[7] = car.getFuelLoad();
+
+        return deg;
     }
 
     /**
-     * Method called after a click on the start button
+     * @return A lap time
      */
-    @FXML
-    protected void onStartButtonClick() {
-        started = true;
-
-        simulation = new Simulation(
-                trackChoice.getValue(),
-                engineDeg.getValue(),
-                fuelLoad.getValue(),
-                tyreType.getValue(),
-                tyreAge.getValue(),
-                tyreDeg.getValue());
-
-        currentLap = startLap.getValue();
-        lapAmount = Track.getLaps(trackChoice.getValue());
-        timeTotal = new Time();
-
-        delegator.initRaceFX();
-
-        lap();
+    Time getLapTime() {
+        return lapTime;
     }
 
     /**
-     * Method called after another track is chosen
+     * @return Car's tyres' status
      */
-    @FXML
-    protected void onTrackChoiceChange() {
-        delegator.setImageView();
+    String[] getTyreStatus() {
+        return car.getTyreStatus();
+    }
+
+    /**
+     * Initialises the important values and sends an initialMessage
+     */
+    void init() {
+        trackName = fxc.trackChoice.getValue();
+        currentLap = fxc.startLap.getValue();
+        car = new Car(
+                fxc.engineDeg.getValue(),
+                fxc.fuelLoad.getValue(),
+                fxc.tyreType.getValue(),
+                fxc.tyreAge.getValue(),
+                fxc.tyreDeg.getValue()
+        );
+
+        if (simulationOn) simulation = new Simulation(trackName, car);
+        sendInitialMessage();
     }
 
     /**
      * Method to simulate a lap
      */
-    private void lap() {
-        if (currentLap >= lapAmount || !started) return;
+    void lap() {
+        if (currentLap == Track.getLaps(trackName)) fxc.showGraph();
+        if (currentLap >= Track.getLaps(trackName) || !fxc.started || !simulationOn) return;
 
-        if (simulation.simulateLap(currentLap)) {
-            problem = true;
-            started = false;
+        if (car.hasProblem()) {
+            fxc.started = false;
+            fxc.problem = true;
         }
 
-        update();
-
-        currentLap++;
-
-        if (currentLap == lapAmount) delegator.showGraph();
+        sendSimulatedValues(simulation.simulateLap(currentLap));
     }
 
     /**
-     * Method used to make the programme wait for JavaFX to update.
-     * <p>
-     * Calls the updateFX function and
-     * then sleeps for the specified time.
-     * After finishing the FX tasks, the lap method is called.
+     * Method to handle a manuel pit stop
+     *
+     * @param type The type of compound to change to
      */
-    private void update() {
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                Thread.sleep(delay);
-                Platform.runLater(() -> updateFX());
-
-                return null;
-            }
-
-        };
-
-        task.setOnSucceeded(workerStateEvent -> lap());
-
-        new Thread(task).start();
+    void manualPitStop(Tyre.Type type) {
+        pitStop(new String[]{type.toString(), String.valueOf((simulationOn && simulation.manualPitStop()))});
     }
 
     /**
-     * Updates all the JavaFX objects
+     * Method to handle a received message
+     *
+     * @param message received
      */
-    @FXML
-    private void updateFX() {
-        delegator.switchButtonsBack();
-        delegator.updateLabels();
-        delegator.updateTimes(simulation.getLapTime());
-        double[] deg = simulation.getDegradation();
-        delegator.colourParts(deg);
-        delegator.updateInfo(deg);
+    void messageReceived(String message) {
+        String[] s = message.split("\\|");
+
+        currentLap = Integer.parseInt(s[0]);
+        lapTime = new Time(s[1]);
+
+        car.setEngineDeg(Double.parseDouble(s[2]));
+        car.setFuelAmount(Double.parseDouble(s[3]));
+        car.setWingCondition(Double.parseDouble(s[4]), Double.parseDouble(s[5]));
+        car.setTyreStatus();
+        car.setTyreDegradation(Double.parseDouble(s[8]), Double.parseDouble(s[9]), Double.parseDouble(s[10]), Double.parseDouble(s[11]));
+
+        //lap(); is getting called when the fxUpdate is finished
+        fxc.update(currentLap);
     }
 
+    /**
+     * pitStop WIP
+     */
+    void pitStop(String[] string) {
+        //TODO NodeRED des Reifen (Flügel) Wechsels benachrichtigen
+        System.out.println("PITSTOP NEEDED");
+        //nrc.send()
+    }
+
+    /**
+     * Sends the initial message
+     */
+    void sendInitialMessage() {
+        String s = "";
+
+        s += currentLap + split;
+        s += lapTime + split;
+        s += car.getEngineDeg() + split;
+        s += car.getFuelLoad() + split;
+        s += Arrays.toString(car.getWingStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
+        s += Arrays.toString(car.getTyreStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
+        s += Arrays.toString(car.getTyreDeg()).replaceAll("^.|.$", "").replaceAll(", ", split);
+
+        nrc.send(s);
+    }
+
+    /**
+     * Sends the simulated values
+     *
+     * @param sim Array of all the simulated values
+     */
+    private void sendSimulatedValues(Object[] sim) {
+        //TODO
+        if (sim[0] == null) return; //TODO THIS
+        String s = "";
+
+        double[] deg = (double[]) sim[1];
+
+        double engineDeg = car.getEngineDeg() + deg[0];
+        double fuelLoad = car.getFuelLoad() - deg[1];
+        double frontWing = car.getWingStatus()[0] + deg[2];
+        double rearWing = car.getWingStatus()[1] + deg[3];
+
+        double[] tyres = car.getTyreDeg();
+        double frontRight = tyres[0] + deg[4];
+        double frontLeft = tyres[1] + deg[5];
+        double rearRight = tyres[2] + deg[6];
+        double rearLeft = tyres[3] + deg[7];
+
+        //Build String
+        s += (currentLap + 1) + split; //Lap
+        s += sim[0] + split; //LapTime
+
+        s += engineDeg + split;
+        s += fuelLoad + split;
+        s += frontWing + split;
+        s += rearWing + split;
+
+        s += Arrays.toString(car.getTyreStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
+
+        s += frontRight + split;
+        s += frontLeft + split;
+        s += rearRight + split;
+        s += rearLeft + split;
+
+        if (sim[2] != null) pitStop((String[]) sim[2]);
+
+        nrc.send(s);
+    }
 }

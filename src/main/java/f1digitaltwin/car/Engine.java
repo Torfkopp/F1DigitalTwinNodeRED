@@ -30,4 +30,10 @@ class Engine {
         return degradation;
     }
 
+    /**
+     * @param degradation of the engine
+     */
+    public void setDegradation(double degradation) {
+        this.degradation = degradation;
+    }
 }

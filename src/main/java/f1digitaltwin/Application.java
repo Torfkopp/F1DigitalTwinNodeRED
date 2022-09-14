@@ -22,4 +22,12 @@ public class Application extends javafx.application.Application {
         stage.setScene(scene);
         stage.show();
     }
+
+    /**
+     * Closes the connection when programme is closed
+     */
+    @Override
+    public void stop() {
+        NodeREDCommunication.disconnect();
+    }
 }

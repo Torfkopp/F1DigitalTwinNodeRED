@@ -32,4 +32,11 @@ class Fuel {
     double getAmount() {
         return amount;
     }
+
+    /**
+     * @param amount of fuel
+     */
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
 }

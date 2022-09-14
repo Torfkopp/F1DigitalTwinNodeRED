@@ -35,6 +35,10 @@ public class Tyre {
         degradation = tyreDeg;
     }
 
+    public void increaseAge() {
+        age++;
+    }
+
     /**
      * Adds degradation to the tyre
      * Can't be less than 0 or more than 100.
@@ -60,6 +64,13 @@ public class Tyre {
      */
     double getDegradation() {
         return degradation;
+    }
+
+    /**
+     * @param degradation of the tyre
+     */
+    public void setDegradation(double degradation) {
+        this.degradation = degradation;
     }
 
     /**

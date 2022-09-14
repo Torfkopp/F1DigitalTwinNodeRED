@@ -12,18 +12,19 @@ import javafx.scene.paint.Color;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 
 import static javafx.scene.paint.Color.*;
 
 /**
  * Method to handle all JavaFX related methods
  */
-public class ControllerDelegation {
+public class FXControllerDelegation {
 
-    private final Controller c;
+    private final FXController c;
 
-    public ControllerDelegation(Controller controller) {
-        c = controller;
+    public FXControllerDelegation(FXController FXController) {
+        c = FXController;
     }
 
     /**
@@ -43,26 +44,6 @@ public class ControllerDelegation {
         c.engine.setFill(degToColour(deg[6]));
 
         c.fuelTank.setFill(degToColour(100 - deg[7]));
-    }
-
-    /**
-     * Helper method to colour the parts
-     *
-     * @param deg The part's degradation
-     * @return A colour representing the degradation
-     */
-    private Color degToColour(double deg) {
-        if (deg <= 10) return DARKGREEN;
-        else if (deg <= 20) return GREEN;
-        else if (deg <= 30) return LIGHTGREEN;
-        else if (deg <= 40) return GREENYELLOW;
-        else if (deg <= 50) return YELLOW;
-        else if (deg <= 60) return ORANGE;
-        else if (deg <= 70) return DARKORANGE;
-        else if (deg <= 80) return ORANGERED;
-        else if (deg <= 90) return RED;
-        else if (deg <= 100) return DARKRED;
-        else return BLACK;
     }
 
     /**
@@ -104,14 +85,6 @@ public class ControllerDelegation {
         setImageView();
         setSpinners();
         setTyreTypeChoices();
-    }
-
-    /**
-     * Method called when the slider is being slided
-     */
-    @FXML
-    private void onSpeedSliderChange() {
-        c.simulation.changeSpeed((int) c.speedSlider.getValue());
     }
 
     /**
@@ -161,14 +134,23 @@ public class ControllerDelegation {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Race");
 
-        int i = 0;
+        //Reverses the timeList
+        LinkedList<String> list = new LinkedList<>();
+        for (String s : c.timeList.getItems()) list.addFirst(s);
+
+        // Lap XX: XX:XX,XXX
+        int firstLap = Integer.parseInt((list.getFirst().split(" ")[1].replace(":", "")));
+        int lastLap = Integer.parseInt((list.getLast().split(" ")[1].replace(":", "")));
+
+        int i = firstLap;
         double d;
         String timeString;
         Time time;
         double min = 300;
         double max = 0;
 
-        for (String s : c.timeList.getItems()) {
+        //Adds the time in seconds to the data
+        for (String s : list) {
             d = 0;
             timeString = s.split(": ")[1];
             time = new Time(timeString);
@@ -185,7 +167,8 @@ public class ControllerDelegation {
         c.lineChart.setCreateSymbols(false);
 
         xAxis.setAutoRanging(false);
-        xAxis.setUpperBound(i);
+        xAxis.setLowerBound(firstLap);
+        xAxis.setUpperBound(lastLap);
 
         yAxis.setAutoRanging(false);
         yAxis.setLowerBound(min - 1);
@@ -216,7 +199,7 @@ public class ControllerDelegation {
      */
     @FXML
     void updateInfo(double[] deg) {
-        String[] tyreStatus = c.simulation.getTyreStatus();
+        String[] tyreStatus = c.controller.getTyreStatus();
 
         for (int i = 0; i < 8; i++) deg[i] = Math.round(deg[i] * 100) / 100.0;
 
@@ -247,9 +230,38 @@ public class ControllerDelegation {
      * Helper method to update the total time label
      */
     void updateTimes(Time lapTime) {
+        if (lapTime.isZero()) return;
         c.timeTotal.addTime(lapTime);
         c.totalTime.setText("Total time:\n" + c.timeTotal);
 
         c.timeList.getItems().add(0, "Lap " + c.currentLap + ": " + lapTime);
+    }
+
+    /**
+     * Helper method to colour the parts
+     *
+     * @param deg The part's degradation
+     * @return A colour representing the degradation
+     */
+    private Color degToColour(double deg) {
+        if (deg <= 10) return DARKGREEN;
+        else if (deg <= 20) return GREEN;
+        else if (deg <= 30) return LIGHTGREEN;
+        else if (deg <= 40) return GREENYELLOW;
+        else if (deg <= 50) return YELLOW;
+        else if (deg <= 60) return ORANGE;
+        else if (deg <= 70) return DARKORANGE;
+        else if (deg <= 80) return ORANGERED;
+        else if (deg <= 90) return RED;
+        else if (deg <= 100) return DARKRED;
+        else return BLACK;
+    }
+
+    /**
+     * Method called when the slider is being slided
+     */
+    @FXML
+    private void onSpeedSliderChange() {
+        c.controller.changeSpeed((int) c.speedSlider.getValue());
     }
 }

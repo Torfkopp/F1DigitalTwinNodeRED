@@ -18,100 +18,99 @@ public class Simulation {
     private final Track.Name track;
     private boolean changedWing = false;
     private int currentLap;
-    private Time lapTime;
     private boolean pitStop = false;
-    private boolean problem = false;
     private int speed = 3;
 
     /**
      * Constructor
      *
-     * @param trackName  The track's name
-     * @param engineDeg  The engine's degradation
-     * @param fuelAmount The amount of fuel
-     * @param type       The starting tyres' type
-     * @param tyreAge    The starting tyres' age
-     * @param tyreDeg    The starting tyres' degradation
+     * @param trackName The track's name
+     * @param car       A car object to base the simulation on
      */
-    public Simulation(Track.Name trackName, int engineDeg, int fuelAmount, Tyre.Type type, int tyreAge, int tyreDeg) {
+    public Simulation(Track.Name trackName, Car car) {
         track = trackName;
-        car = new Car(engineDeg, fuelAmount, type, tyreAge, tyreDeg);
+        //car = new Car(engineDeg, fuelAmount, type, tyreAge, tyreDeg);
+        this.car = car;
     }
 
     /**
      * @param speed to change to
      */
-    public void changeSpeed(int speed) {
+    void changeSpeed(int speed) {
         this.speed = speed;
     }
 
     /**
-     * 0 Front Left, 1 Front Right, 2 Rear Left, 3 Rear Right
-     * 4 Front Wing, 5 Rear Wing, 6 Engine, 7 Fuel
+     * Method to choose the new compound
      *
-     * @return Array of integer representing the part's degradation
+     * @return String[] of the new compound and if a new wing is needed
      */
-    public double[] getDegradation() {
-        double[] deg = new double[8];
-        System.arraycopy(car.getTyreDeg(), 0, deg, 0, 4);
-        System.arraycopy(car.getWingStatus(), 0, deg, 4, 2);
-        deg[6] = car.getEngineDeg();
-        deg[7] = car.getFuelLoad();
+    String[] makePitStop() {
+        //TODO wip
+        Tyre.Type type;
+        boolean newWing;
 
-        return deg;
+        double remainingPercent = 1.0 * currentLap / Track.getLaps(track);
+
+        if (remainingPercent > 0.75) type = Tyre.Type.SOFT;
+        else if (remainingPercent > 0.55) type = Tyre.Type.MEDIUM;
+        else type = Tyre.Type.HARD;
+
+        newWing = car.getWingStatus()[0] > 0;
+        return new String[]{String.valueOf(type), String.valueOf(newWing)};
     }
 
     /**
-     * @return A lap time
-     */
-    public Time getLapTime() {
-        if (problem) return new Time();
-        return lapTime;
-    }
-
-    /**
-     * Front Right, FL, RR, RL
+     * Changes the variables so that the simulation knows a pit stop was made
      *
-     * @return The tyres' status
+     * @return If the wings needs to be changed
      */
-    public String[] getTyreStatus() {
-        return car.getTyreStatus();
-    }
-
-    /**
-     * @param type The type of tyre to be put on
-     */
-    public void manualPitStop(Tyre.Type type) {
-        car.newTyres(type);
-        if (car.getWingStatus()[0] > 0) car.newWing();
+    boolean manualPitStop() {
+        //TODO wip
         pitStop = true;
-        changedWing = true;
+        changedWing = car.getWingStatus()[0] > 0;
+        return changedWing;
     }
 
     /**
      * Method simulating the part's degradation
      *
      * @param currentLap The lap the car is in
-     * @return whether a problem occurred or not
+     * @return An Array of the lapTime, a double[] of the degradations, and a string[]
      */
-    public boolean simulateLap(int currentLap) {
-        this.currentLap = currentLap;
+    Object[] simulateLap(int currentLap) {
+        Object[] obj = new Object[3];
+
         //Cannot drive if the car is kaput
-        if (problem) return true;
+        if (car.hasProblem()) return null;
+
+        this.currentLap = currentLap;
 
         //Calculate the lap time
-        pitStop = pitStopNeeded();
-        if (pitStop) changedWing = makePitStop();
-        calculateLapTime();
+        obj[0] = calculateLapTime();
 
-        //Degrade every part
-        boolean tyreProblem = car.degradeTyres(calculateTyreDeg());
-        boolean engineProblem = car.degradeEngine(calculateEngineDeg());
-        boolean fuelProblem = car.loseFuel(calculateFuelLoss());
-        car.degradeWings(calculateWingDeg());
+        //Calculate Degradation of every part
+        double[] newValues = new double[8];
+        newValues[0] = calculateEngineDeg();
+        newValues[1] = calculateFuelLoss();
+        double[] wingDeg = calculateWingDeg();
+        newValues[2] = wingDeg[0];
+        newValues[3] = wingDeg[1];
 
-        //Return whether a problem occurred
-        return problem = tyreProblem || engineProblem || fuelProblem;
+        double[] tyreDeg = calculateTyreDeg();
+        newValues[4] = tyreDeg[0];
+        newValues[5] = tyreDeg[1];
+        newValues[6] = tyreDeg[2];
+        newValues[7] = tyreDeg[3];
+
+        obj[1] = newValues;
+
+        //Calculate if a pit stop is needed and if yes, what to change
+        obj[2] = null;
+        if (pitStopNeeded()) obj[2] = makePitStop();
+
+        //Return the string
+        return obj;
     }
 
     /**
@@ -184,15 +183,16 @@ public class Simulation {
     /**
      * Calculates the lap time
      */
-    private void calculateLapTime() {
-        lapTime = new Time();
+    private Time calculateLapTime() {
+        Time time = lapTimeBase();
 
-        lapTimeBase();
-        lapTimePitStop();
-        lapTimeWingDamage();
-        lapTimeTyres();
-        lapTimeFuel();
-        lapTimeSpeed();
+        time.addMilliseconds(lapTimePitStop());
+        time.addMilliseconds(lapTimeWingDamage());
+        time.addMilliseconds(lapTimeTyres());
+        time.addMilliseconds(lapTimeFuel());
+        time.addMilliseconds(lapTimeSpeed());
+
+        return time;
     }
 
     /**
@@ -261,68 +261,67 @@ public class Simulation {
     /**
      * Adds the fastest lap time as base
      */
-    private void lapTimeBase() {
+    private Time lapTimeBase() {
         switch (track) {
             case MONZA:
-                lapTime.addTime(new Time("1:22,000"));
-                break;
+                return new Time("1:22,000");
             case MONACO:
-                lapTime.addTime(new Time("1:12,000"));
-                break;
+                return new Time("1:12,000");
             default:
-                lapTime.addTime(new Time("1:30,000"));
-                break;
+                return new Time("1:30,000");
         }
     }
 
     /**
      * Adds time depending on the fuel level
      */
-    private void lapTimeFuel() {
-        lapTime.addMilliseconds((int) ((car.getFuelLoad() / 50) * 1000));
+    private int lapTimeFuel() {
+        return (int) ((car.getFuelLoad() / 50) * 1000);
     }
 
     /**
      * Adds time if a pit stop was made
      */
-    private void lapTimePitStop() {
+    private int lapTimePitStop() {
+        int time = 0;
         if (pitStop) {
-            lapTime.addSeconds(20);
-            lapTime.addMilliseconds((int) (Math.random() * 4000));
-            if (changedWing) lapTime.addSeconds(5);
+            time += 20000;
+            time += (int) (Math.random() * 4000);
+            if (changedWing) time += 5000;
             pitStop = false;
             changedWing = false;
         }
+        return time;
     }
 
     /**
      * Adds time depending on the current speed setting
      */
-    private void lapTimeSpeed() {
+    private int lapTimeSpeed() {
+        int time = (int) (Math.random() * 100);
         switch (speed) {
             case 1:
-                lapTime.addMilliseconds(1200);
+                time += 1200;
                 break;
             case 2:
-                lapTime.addMilliseconds(800);
+                time += 800;
                 break;
             case 3:
-                lapTime.addMilliseconds(400);
+                time += 400;
                 break;
             case 4:
-                lapTime.addMilliseconds(200);
+                time += 200;
                 break;
             case 5:
-                lapTime.addMilliseconds(0);
                 break;
         }
-        lapTime.addMilliseconds((int) (Math.random() * 100));
+        return time;
     }
 
     /**
      * Adds time depending on the tyres' status
      */
-    private void lapTimeTyres() {
+    private int lapTimeTyres() {
         //inspiration from https://www.racedepartment.com/attachments/wear-grip-png.489787/)
         int length = Track.getLength(track);
         OptionalDouble temp = Arrays.stream(car.getTyreDeg()).average();
@@ -349,38 +348,17 @@ public class Simulation {
                 break;
         }
 
-        lapTime.addMilliseconds((int) typeAdd);
-        lapTime.addMilliseconds((int) (degAdd * 1000));
+        return (int) typeAdd + (int) (degAdd * 1000);
     }
 
     /**
      * Adds time depending on the wings' damage
      */
-    private void lapTimeWingDamage() {
+    private int lapTimeWingDamage() {
         int length = Track.getLength(track);
         double[] wingDmg = car.getWingStatus();
 
-        lapTime.addMilliseconds((int) (wingDmg[0] / 100 * length));
-        lapTime.addMilliseconds((int) (wingDmg[1] / 50 * length));
-    }
-
-    /**
-     * Method to make a pit stop
-     *
-     * @return whether a new wing was needed
-     */
-    private boolean makePitStop() {
-        double remainingPercent = 1.0 * currentLap / Track.getLaps(track);
-
-        if (remainingPercent > 0.75) car.newTyres(Tyre.Type.SOFT);
-        else if (remainingPercent > 0.55) car.newTyres(Tyre.Type.MEDIUM);
-        else car.newTyres(Tyre.Type.HARD);
-
-        if (car.getWingStatus()[0] > 0) {
-            car.newWing();
-            return true;
-        }
-        return false;
+        return (int) (wingDmg[0] / 100 * length) + (int) (wingDmg[1] / 50 * length);
     }
 
     /**

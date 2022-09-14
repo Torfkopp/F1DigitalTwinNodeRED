@@ -11,6 +11,7 @@ public class Car {
     private final Wing rearWing;
     private final Tyre[] tyres;
     private Wing frontWing;
+    private boolean problem = false;
 
     /**
      * Constructor
@@ -33,20 +34,18 @@ public class Car {
 
     /**
      * @param degradation The amount to degrade the engine by
-     * @return whether the engine is working
      */
-    public boolean degradeEngine(double degradation) {
-        return engine.addDegradation(degradation);
+    public void degradeEngine(double degradation) {
+        problem = engine.addDegradation(degradation);
     }
 
     /**
      * Degrades all the tyres by the specified amount
      *
      * @param deg 0 fr, 1 fl, 2 rr, 3 rl
-     * @return whether a tyre has a problem
      */
-    public boolean degradeTyres(double[] deg) {
-        return tyres[0].addDegradation(deg[0]) ||
+    public void degradeTyres(double[] deg) {
+        problem = tyres[0].addDegradation(deg[0]) ||
                 tyres[1].addDegradation(deg[1]) ||
                 tyres[2].addDegradation(deg[2]) ||
                 tyres[3].addDegradation(deg[3]);
@@ -67,6 +66,10 @@ public class Car {
         return engine.getDegradation();
     }
 
+    public void setEngineDeg(double deg) {
+        engine.setDegradation(deg);
+    }
+
     /**
      * @return The amount of fuel remaining
      */
@@ -84,7 +87,7 @@ public class Car {
     }
 
     /**
-     * Front Right, Front Left, Rear Right, Rear Left
+     * Type and Age of the tyres; the same for all four
      *
      * @return The tyres' status
      */
@@ -109,11 +112,17 @@ public class Car {
     }
 
     /**
-     * @param amount The amount of fuel to burn
-     * @return whether the car has enough fuel
+     * @return Whether the car has a problem
      */
-    public boolean loseFuel(double amount) {
-        return fuel.decreaseAmount(amount);
+    public boolean hasProblem() {
+        return problem;
+    }
+
+    /**
+     * @param amount The amount of fuel to burn
+     */
+    public void loseFuel(double amount) {
+        problem = fuel.decreaseAmount(amount);
     }
 
     /**
@@ -128,6 +137,42 @@ public class Car {
      */
     public void newWing() {
         frontWing = new Wing();
+    }
+
+    /**
+     * @param amount of fuel
+     */
+    public void setFuelAmount(double amount) {
+        fuel.setAmount(amount);
+    }
+
+    /**
+     * @param deg0 Front Right
+     * @param deg1 Front Left
+     * @param deg2 Rear Right
+     * @param deg3 Rear Left
+     */
+    public void setTyreDegradation(double deg0, double deg1, double deg2, double deg3) {
+        tyres[0].setDegradation(deg0);
+        tyres[1].setDegradation(deg1);
+        tyres[2].setDegradation(deg2);
+        tyres[3].setDegradation(deg3);
+    }
+
+    /**
+     * Increases the Tyres' age
+     */
+    public void setTyreStatus() {
+        for (Tyre t : tyres) t.increaseAge();
+    }
+
+    /**
+     * @param conFront Front wing's condition
+     * @param conRear  Rear wing's condition
+     */
+    public void setWingCondition(double conFront, double conRear) {
+        frontWing.setCondition(conFront);
+        rearWing.setCondition(conRear);
     }
 
     /**

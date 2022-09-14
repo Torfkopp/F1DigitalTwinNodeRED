@@ -28,4 +28,11 @@ class Wing {
     double getCondition() {
         return condition;
     }
+
+    /**
+     * @param condition of the wing
+     */
+    public void setCondition(double condition) {
+        this.condition = condition;
+    }
 }

@@ -108,6 +108,13 @@ public class Time {
         return seconds;
     }
 
+    /**
+     * @return if the time is 00:00,000
+     */
+    public boolean isZero() {
+        return minutes == 0 && seconds == 0 && milliseconds == 0;
+    }
+
     @Override
     public String toString() {
         return minutes + ":" + String.format("%02d", seconds) + "," + String.format("%03d", milliseconds);
@@ -127,6 +134,5 @@ public class Time {
             minutes += temp;
             seconds = Math.floorMod(seconds, 60);
         }
-
     }
 }

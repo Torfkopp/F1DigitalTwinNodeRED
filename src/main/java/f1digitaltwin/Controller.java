@@ -97,11 +97,6 @@ public class Controller {
         if (currentLap == Track.getLaps(trackName)) fxc.showGraph();
         if (currentLap >= Track.getLaps(trackName) || !fxc.started || !simulationOn) return;
 
-        if (car.hasProblem()) {
-            fxc.started = false;
-            fxc.problem = true;
-        }
-
         sendSimulatedValues(simulation.simulateLap(currentLap));
     }
 
@@ -164,8 +159,6 @@ public class Controller {
      * @param sim Array of all the simulated values
      */
     private void sendSimulatedValues(Object[] sim) {
-        //TODO
-        if (sim[0] == null) return; //TODO THIS
         String s = "";
 
         double[] deg = (double[]) sim[1];

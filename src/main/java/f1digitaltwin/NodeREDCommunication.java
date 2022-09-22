@@ -99,7 +99,7 @@ public class NodeREDCommunication {
      * @throws MqttException thrown
      */
     private void receive() throws MqttException {
-        String[] topic = new String[]{"hello"};
+        String[] topic = new String[]{"values"};
         int[] qos = new int[]{2};
 
         client.setCallback(new MqttCallback() {

@@ -178,18 +178,20 @@ public class Controller {
         s += (currentLap + 1) + split; //Lap
         s += sim[0] + split; //LapTime
 
-        s += engineDeg + split;
-        s += fuelLoad + split;
-        s += frontWing + split;
-        s += rearWing + split;
+        s += engineDeg + split; //engine deg
+        s += fuelLoad + split; //fuel load
+        s += frontWing + split; //front wing deg
+        s += rearWing + split; //rear wing deg
 
+        //Type and Age of the tyres
         s += Arrays.toString(car.getTyreStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
 
-        s += frontRight + split;
-        s += frontLeft + split;
-        s += rearRight + split;
-        s += rearLeft + split;
+        s += frontRight + split; //front right tyre deg
+        s += frontLeft + split; //front left tyre deg
+        s += rearRight + split; //rear right tyre deg
+        s += rearLeft + split; //rear left tyre deg
 
+        //the new tyre compound or "noStop" and if a new wing is needed
         s += (Arrays.toString((String[]) sim[2])).replaceAll("^.|.$", "").replaceAll(", ", split);
 
         nrc.send("simulation", s);

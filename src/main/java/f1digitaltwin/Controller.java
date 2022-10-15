@@ -148,7 +148,7 @@ public class Controller {
         s += Arrays.toString(car.getWingStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
         s += Arrays.toString(car.getTyreStatus()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
         s += Arrays.toString(car.getTyreDeg()).replaceAll("^.|.$", "").replaceAll(", ", split) + split;
-        s += "noStop";
+        s += "noStop" + split + "false";
 
         nrc.send("initial", s);
     }

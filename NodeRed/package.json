@@ -1,0 +1,14 @@
+{
+    "name": "DigitalTwinFormula1",
+    "description": "Digital Twin Model of a Formula 1 Car",
+    "version": "0.0.1",
+    "dependencies": {
+        "@digitaltwins/node-red-contrib-digital-twin": "0.1.2"
+    },
+    "node-red": {
+        "settings": {
+            "flowFile": "flows.json",
+            "credentialsFile": "flows_cred.json"
+        }
+    }
+}

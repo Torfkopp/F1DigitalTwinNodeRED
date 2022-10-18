@@ -400,7 +400,10 @@ public class Simulation {
         // Pit if wing is damaged
         if (car.getWingStatus()[0] >= 25) return true;
         // Pit if the hard tyre is too old
-        return car.getTyreType() == Tyre.Type.HARD && Arrays.stream(car.getTyreDeg()).anyMatch(x -> x > 63.0);
+        if (car.getTyreType() == Tyre.Type.HARD && Arrays.stream(car.getTyreDeg()).anyMatch(x -> x > 63.0)) return true;
+
+        // Pit in penultimate lap if mandatory pit stop wasn't made yet
+        return Integer.parseInt(car.getTyreStatus()[1]) == Track.getLaps(track) - 1;
     }
 
     /**

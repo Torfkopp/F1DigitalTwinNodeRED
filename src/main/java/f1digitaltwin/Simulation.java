@@ -339,15 +339,18 @@ public class Simulation {
      * @return String[] of new compound and if new wing is needed
      */
     private String[] pitStop() {
-        pitStop = true;
         String[] s = new String[2];
         s[1] = String.valueOf(pitStopWing());
 
-        if (manualCompound != null) {
+        if (manualCompound != null) { // If user chooses to pit
             s[0] = String.valueOf(manualCompound);
             manualCompound = null;
-        } else if (!pitStopNeeded()) s[0] = "noStop";
-        else s[0] = pitStopCompound();
+            pitStop = true;
+        } else if (pitStopNeeded()){
+            s[0] = pitStopCompound();
+            pitStop = true;
+        }
+        else s[0] = "noStop";
 
         return s;
     }

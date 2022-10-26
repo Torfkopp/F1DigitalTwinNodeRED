@@ -230,17 +230,10 @@ public class Simulation {
     }
 
     /**
-     * Adds the fastest lap time as base
+     * Adds the base time
      */
     private Time lapTimeBase() {
-        switch (track) {
-            case MONZA:
-                return new Time("1:22,000");
-            case MONACO:
-                return new Time("1:12,000");
-            default:
-                return new Time("1:30,000");
-        }
+        return Track.getBaseTime(track);
     }
 
     /**

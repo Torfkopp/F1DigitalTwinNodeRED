@@ -1,5 +1,7 @@
 package f1digitaltwin.car;
 
+import f1digitaltwin.Time;
+
 /**
  * Class representing a track
  */
@@ -11,6 +13,20 @@ public final class Track {
     public enum Name {
         MONZA,
         MONACO
+    }
+
+    /**
+     * @param track The track
+     * @return Time the base time based on the 2022 qualifying average
+     */
+    public static Time getBaseTime(Name track) {
+        switch (track) {
+            case MONZA:
+                return Monza.baseTime;
+            case MONACO:
+                return Monaco.baseTime;
+        }
+        return Monza.baseTime;
     }
 
     /**
@@ -74,6 +90,7 @@ public final class Track {
      */
     private static final class Monza {
 
+        private static final Time baseTime = new Time("1:22:000");
         private static final boolean clockwise = true;
         private static final int laps = 53;
         private static final int length = 5793;
@@ -85,6 +102,7 @@ public final class Track {
      */
     private static final class Monaco {
 
+        private static final Time baseTime = new Time("1:12:000");
         private static final boolean clockwise = true;
         private static final int laps = 78;
         private static final int length = 3337;
@@ -99,8 +117,7 @@ public final class Track {
         private static final int percentFullThrottle = ;
         private static final boolean clockwise = ;
 
-        private static final int amountOfCorners = ;
-        private static final int amountOfStraights = ;
+        private static final Time baseTime = new Time("");
     }
      */
 }

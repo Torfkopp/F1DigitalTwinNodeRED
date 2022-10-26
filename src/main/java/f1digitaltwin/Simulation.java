@@ -186,8 +186,8 @@ public class Simulation {
 
         for (int i = 0; i < 4; i++) {
             double deg = base;
-            // Clockwise, more right corners, more degradation front right
-            if (Track.isClockwise(track) && i == 0 || !Track.isClockwise(track) && i == 1) deg += 2.5;
+            // Clockwise, more right corners, more degradation front left
+            if (Track.isClockwise(track) && i == 1 || !Track.isClockwise(track) && i == 0) deg += 2.5;
             // Less fullThrottle, more acceleration, more wheel spin, higher degradation
             if (i == 2 || i == 3) deg += 5 - 0.05 * Track.getFullThrottle(track);
 

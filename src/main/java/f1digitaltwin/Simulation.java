@@ -185,16 +185,17 @@ public class Simulation {
         double[] tyreDeg = new double[4];
 
         for (int i = 0; i < 4; i++) {
-            double deg = base;
+            double value = base;
             // Clockwise, more right corners, more degradation front left
-            if (Track.isClockwise(track) && i == 1 || !Track.isClockwise(track) && i == 0) deg += 2.5;
+            if (Track.isClockwise(track) && i == 1 || !Track.isClockwise(track) && i == 0) value -= 2.5;
             // Less fullThrottle, more acceleration, more wheel spin, higher degradation
-            if (i == 2 || i == 3) deg += 5 - 0.05 * Track.getFullThrottle(track);
+            if (i == 2 || i == 3) value -= 5 - 0.05 * Track.getFullThrottle(track);
 
-            deg += Math.random() * 11 - 5;
-            deg += (3 - speed) * 5;
+            value += Math.random() * 11 - 5;
+            value += (3 - speed) * 5;
 
-            tyreDeg[i] = (Track.getLaps(track) * 1.0) / deg;
+            //lower value = higher degradation
+            tyreDeg[i] = (Track.getLaps(track) * 1.0) / value;
         }
 
         return tyreDeg;
@@ -294,6 +295,7 @@ public class Simulation {
         double typeAdd = 0;
         double degAdd = 0;
 
+        //A tyre's performance drops linearly after about 63 % degradation
         switch (car.getTyreType()) {
             case SOFT:
                 typeAdd = 0.0 * length;

@@ -90,7 +90,7 @@ public final class Track {
      */
     private static final class Monza {
 
-        private static final Time baseTime = new Time("1:22:000");
+        private static final Time baseTime = new Time("1:22,000");
         private static final boolean clockwise = true;
         private static final int laps = 53;
         private static final int length = 5793;
@@ -102,7 +102,7 @@ public final class Track {
      */
     private static final class Monaco {
 
-        private static final Time baseTime = new Time("1:12:000");
+        private static final Time baseTime = new Time("1:13,000");
         private static final boolean clockwise = true;
         private static final int laps = 78;
         private static final int length = 3337;

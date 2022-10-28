@@ -375,7 +375,9 @@ public class Simulation {
         if (Arrays.stream(car.getTyreDeg()).anyMatch(x -> x > 95.0)) return true;
         // Pit if the wing is heavily damaged
         if (car.getWingStatus()[0] >= 75) return true;
-        // Don't pit if there are only a few laps to go
+        // Pit in penultimate lap if mandatory pit stop wasn't made yet
+        if (Integer.parseInt(car.getTyreStatus()[1]) == Track.getLaps(track) - 1) return true;
+        // Otherwise, don't pit if there are only a few laps to go
         if (1.0 * currentLap / Track.getLaps(track) >= 0.9) return false;
 
         // Last laps of the race; only pit if the wing is too damaged or the soft tyre is too old
@@ -383,7 +385,7 @@ public class Simulation {
         if (car.getWingStatus()[0] >= 50) return true;
         // Pit if the soft tyre is too old
         if (car.getTyreType() == Tyre.Type.SOFT && Arrays.stream(car.getTyreDeg()).anyMatch(x -> x > 63.0)) return true;
-        // Don't pit if there are only a few laps to go on the hard/medium
+        // Otherwise, don't pit if there are only a few laps to go on the hard/medium
         if (1.0 * currentLap / Track.getLaps(track) >= 0.8) return false;
 
         // Last part of the race; Only pit if the mediums are too old to make the final stretch
@@ -397,10 +399,7 @@ public class Simulation {
         // Pit if wing is damaged
         if (car.getWingStatus()[0] >= 25) return true;
         // Pit if the hard tyre is too old
-        if (car.getTyreType() == Tyre.Type.HARD && Arrays.stream(car.getTyreDeg()).anyMatch(x -> x > 63.0)) return true;
-
-        // Pit in penultimate lap if mandatory pit stop wasn't made yet
-        return Integer.parseInt(car.getTyreStatus()[1]) == Track.getLaps(track) - 1;
+        return car.getTyreType() == Tyre.Type.HARD && Arrays.stream(car.getTyreDeg()).anyMatch(x -> x > 63.0);
     }
 
     /**

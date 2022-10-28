@@ -341,11 +341,10 @@ public class Simulation {
             s[0] = String.valueOf(manualCompound);
             manualCompound = null;
             pitStop = true;
-        } else if (pitStopNeeded()){
+        } else if (pitStopNeeded()) {
             s[0] = pitStopCompound();
             pitStop = true;
-        }
-        else s[0] = "noStop";
+        } else s[0] = "noStop";
 
         return s;
     }
@@ -356,13 +355,13 @@ public class Simulation {
      * @return String of the new compound
      */
     private String pitStopCompound() {
-        Tyre.Type type;
+        Tyre.Type type = car.getTyreType();
 
         double remainingPercent = 1.0 * currentLap / Track.getLaps(track);
 
-        if (remainingPercent > 0.75) type = Tyre.Type.SOFT;
-        else if (remainingPercent > 0.55) type = Tyre.Type.MEDIUM;
-        else type = Tyre.Type.HARD;
+        if (type == Tyre.Type.SOFT) type = remainingPercent > 0.55 ? Tyre.Type.MEDIUM : Tyre.Type.HARD;
+        else if (type == Tyre.Type.MEDIUM) type = remainingPercent > 0.75 ? Tyre.Type.SOFT : Tyre.Type.HARD;
+        else if (type == Tyre.Type.HARD) type = remainingPercent > 0.75 ? Tyre.Type.SOFT : Tyre.Type.MEDIUM;
 
         return String.valueOf(type);
     }

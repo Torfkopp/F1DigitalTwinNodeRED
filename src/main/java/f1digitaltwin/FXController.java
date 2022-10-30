@@ -71,6 +71,14 @@ public class FXController {
     }
 
     /**
+     * Method called when the slider is being slided
+     */
+    @FXML
+    protected void onSpeedSliderChange() {
+        controller.changeSpeed((int) speedSlider.getValue());
+    }
+
+    /**
      * Method called after a click on the start button
      */
     @FXML

@@ -71,7 +71,7 @@ public class FXControllerDelegation {
 
         c.speedSlider.setVisible(true);
         c.speedSlider.setValue(3);
-        c.speedSlider.valueProperty().addListener((observableValue, number, t1) -> onSpeedSliderChange());
+        c.speedSlider.valueProperty().addListener((observableValue, number, t1) -> c.onSpeedSliderChange());
     }
 
     /**
@@ -254,13 +254,5 @@ public class FXControllerDelegation {
         else if (deg <= 90) return RED;
         else if (deg <= 100) return DARKRED;
         else return BLACK;
-    }
-
-    /**
-     * Method called when the slider is being slided
-     */
-    @FXML
-    private void onSpeedSliderChange() {
-        c.controller.changeSpeed((int) c.speedSlider.getValue());
     }
 }

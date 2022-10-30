@@ -1,6 +1,5 @@
 package f1digitaltwin;
 
-import f1digitaltwin.car.Track;
 import f1digitaltwin.car.Tyre;
 import javafx.application.Platform;
 import javafx.concurrent.Task;

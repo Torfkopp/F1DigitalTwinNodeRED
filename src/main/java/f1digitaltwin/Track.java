@@ -1,4 +1,4 @@
-package f1digitaltwin.car;
+package f1digitaltwin;
 
 import f1digitaltwin.Time;
 

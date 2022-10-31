@@ -122,13 +122,10 @@ public class Controller {
         car.setEngineDeg(Double.parseDouble(s[2]));
         car.setFuelAmount(Double.parseDouble(s[3]));
         car.setWingCondition(Double.parseDouble(s[4]), Double.parseDouble(s[5]));
-        car.setTyreStatus();
         car.setTyreDegradation(Double.parseDouble(s[8]), Double.parseDouble(s[9]), Double.parseDouble(s[10]), Double.parseDouble(s[11]));
 
-        if (!s[12].equals("noStop")) {
-            car.newTyres(Tyre.Type.valueOf(s[12]));
-            if (Boolean.parseBoolean(s[13])) car.newWing();
-        }
+        if(Integer.parseInt(s[7]) == 0) car.newTyres(Tyre.Type.valueOf(s[6]));
+        car.setTyreStatus();
 
         //lap(); is getting called when the fxUpdate is finished
         fxc.update(currentLap);

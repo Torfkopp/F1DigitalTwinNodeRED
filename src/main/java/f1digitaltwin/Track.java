@@ -22,11 +22,11 @@ public final class Track {
     public static Time getBaseTime(Name track) {
         switch (track) {
             case MONZA:
-                return Monza.baseTime;
+                return new Time(Monza.baseTime);
             case MONACO:
-                return Monaco.baseTime;
+                return new Time(Monaco.baseTime);
         }
-        return Monza.baseTime;
+        return new Time("1:30,000");
     }
 
     /**
@@ -90,7 +90,7 @@ public final class Track {
      */
     private static final class Monza {
 
-        private static final Time baseTime = new Time("1:22,000");
+        private static final String baseTime = "1:22,000";
         private static final boolean clockwise = true;
         private static final int laps = 53;
         private static final int length = 5793;
@@ -102,7 +102,7 @@ public final class Track {
      */
     private static final class Monaco {
 
-        private static final Time baseTime = new Time("1:13,000");
+        private static final String baseTime = "1:13,000";
         private static final boolean clockwise = true;
         private static final int laps = 78;
         private static final int length = 3337;

@@ -11,7 +11,7 @@ import java.util.Arrays;
  */
 public class Controller {
 
-    private static final boolean simulationOn = false;
+    private static final boolean simulationOn = true;
     private final FXController fxc;
     private final NodeREDCommunication nrc;
     private final String split = "|";

@@ -1,7 +1,5 @@
 package f1digitaltwin;
 
-import f1digitaltwin.Time;
-
 /**
  * Class representing a track
  */

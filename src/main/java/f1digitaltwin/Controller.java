@@ -11,7 +11,7 @@ import java.util.Arrays;
  */
 public class Controller {
 
-    private static final boolean simulationOn = true;
+    private static final boolean simulationOn = false;
     private final FXController fxc;
     private final NodeREDCommunication nrc;
     private final String split = "|";
@@ -29,7 +29,6 @@ public class Controller {
     public Controller(FXController fxc) {
         this.fxc = fxc;
         nrc = new NodeREDCommunication(this);
-
     }
 
     /**
@@ -85,8 +84,10 @@ public class Controller {
                 fxc.tyreDeg.getValue()
         );
 
-        if (simulationOn) simulation = new Simulation(trackName, car);
-        sendInitialMessage();
+        if (simulationOn) {
+            simulation = new Simulation(trackName, car);
+            sendInitialMessage();
+        }
     }
 
     /**
@@ -124,7 +125,7 @@ public class Controller {
         car.setWingCondition(Double.parseDouble(s[4]), Double.parseDouble(s[5]));
         car.setTyreDegradation(Double.parseDouble(s[8]), Double.parseDouble(s[9]), Double.parseDouble(s[10]), Double.parseDouble(s[11]));
 
-        if(Integer.parseInt(s[7]) == 0) car.newTyres(Tyre.Type.valueOf(s[6]));
+        if (Integer.parseInt(s[7]) == 0) car.newTyres(Tyre.Type.valueOf(s[6]));
         car.setTyreStatus();
 
         //lap(); is getting called when the fxUpdate is finished
